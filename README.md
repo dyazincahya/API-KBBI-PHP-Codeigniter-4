@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/main/kbbi.webp" width="100" />
+<img src="https://raw.githubusercontent.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/main/kbbi.webp" width="150" />
 
 # API Kamus Besar Bahasa Indonesia (KBBI) 2024
 
@@ -90,6 +90,8 @@ $routes->get('/api/kbbi/(:any)', 'ApiKBBI::search/$1');
 }
 ```
 
+## Gist
+[API KBBI on Gist](https://gist.github.com/dyazincahya/7e193e509e8a08f53922f61a91695712)
 
 ## Penulis
 [Kang Cahya](https://kang-cahya.com)
