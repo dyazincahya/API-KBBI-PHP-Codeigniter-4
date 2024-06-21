@@ -27,9 +27,9 @@
 ```
 ## Coba API
 ```
-https://x-labs.my.id/api/kbbi/<PARAM>
+https://x-labs.my.id/api/kbbi/search/<PARAM>
 ```
-[Coba Sekarang](https://x-labs.my.id/api/kbbi/demo)
+[Coba Sekarang](https://x-labs.my.id/api/kbbi/search/demo)
 
 ## Cara Instalasi
 - Salin atau unduh kode model (Model) dengan nama [KBBIModel.php](https://github.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/blob/main/KBBIModel.php)
@@ -38,12 +38,12 @@ https://x-labs.my.id/api/kbbi/<PARAM>
 ```php
 // KBBI Router : \Config\Routes.php
 $routes->get('/api/kbbi', 'ApiKBBI::index');
-$routes->get('/api/kbbi/(:any)', 'ApiKBBI::search/$1');
+$routes->get('/api/kbbi/search/(:any)', 'ApiKBBI::search/$1');
 ```
 
 ## End Point
 - /api/kbbi
-- /api/kbbi/```KATA_KUNCI```
+- /api/kbbi/search/```KATA_KUNCI```
 
 ## Contoh Respon
 #### /api/kbbi/bagaimana
