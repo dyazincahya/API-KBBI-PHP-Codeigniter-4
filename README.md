@@ -25,6 +25,11 @@
     }
 }
 ```
+## Coba API
+```
+https://x-labs.my.id/api/kbbi/<PARAM>
+```
+[Coba Sekarang](https://x-labs.my.id/api/kbbi/demo)
 
 ## Cara Instalasi
 - Salin atau unduh kode model (Model) dengan nama [KBBIModel.php](https://github.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/blob/main/KBBIModel.php)
