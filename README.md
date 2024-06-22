@@ -46,7 +46,7 @@ $routes->get('/api/kbbi/search/(:any)', 'ApiKBBI::search/$1');
 - /api/kbbi/search/```KATA_KUNCI```
 
 ## Contoh Respon
-#### /api/kbbi/bagaimana
+#### /api/kbbi/search/bagaimana
 ```json
 {
     "success": true,
@@ -75,7 +75,7 @@ $routes->get('/api/kbbi/search/(:any)', 'ApiKBBI::search/$1');
 }
 ```
 
-#### /api/kbbi/bagai%20babi%20kelaparan
+#### /api/kbbi/search/bagai%20babi%20kelaparan
 ```json
 {
     "success": true,
