@@ -31,6 +31,15 @@ https://x-labs.my.id/api/kbbi/search/<PARAM>
 ```
 [Coba Sekarang](https://x-labs.my.id/api/kbbi/search/demo)
 
+## Kompatibel dengan
+- PHP 8.3.8
+- Codeigniter 4.3.8 atau lebih baru
+
+## Pustaka yang digunakan
+- CURL
+- DOMDocument
+- DOMXPath
+
 ## Cara Instalasi
 - Salin atau unduh kode model (Model) dengan nama [KBBIModel.php](https://github.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/blob/main/KBBIModel.php)
 - Salin atau unduh kode kontroler (Controller) dengan nama [ApiKBBI.php](https://github.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/blob/main/ApiKBBI.php)
