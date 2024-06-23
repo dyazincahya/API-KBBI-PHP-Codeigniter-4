@@ -104,8 +104,5 @@ $routes->get('/api/kbbi/search/(:any)', 'ApiKBBI::search/$1');
 }
 ```
 
-## Gist
-[API KBBI on Gist](https://gist.github.com/dyazincahya/7e193e509e8a08f53922f61a91695712)
-
 ## Penulis
 [Kang Cahya](https://kang-cahya.com)
