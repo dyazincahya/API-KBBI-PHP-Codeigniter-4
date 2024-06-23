@@ -45,7 +45,8 @@ class KBBIModel extends Model
         return preg_replace('/\s+/', ' ', strtolower(trim($cleanWord)));
     }
 
-    private function _parserV1($htmlData, $word)
+    // parserV1 disabled because has been enhance in parserV3
+    /*private function _parserV1($htmlData, $word)
     {
         $doc = new DOMDocument();
         libxml_use_internal_errors(true);
@@ -91,7 +92,9 @@ class KBBIModel extends Model
                 'tesaurusLink' => $tesaurusLink,
             ];
         }
-    }
+
+        return count($dataResponse) ? $dataResponse : [];
+    }*/
 
     private function _parserV2($htmlData, $word)
     {
@@ -149,7 +152,67 @@ class KBBIModel extends Model
             }
         }
 
-        return $dataResponse;
+        return count($dataResponse) ? $dataResponse : [];
+    }
+
+    private function _parserV3($htmlData, $word)
+    {
+        $doc = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $doc->loadHTML($htmlData);
+        libxml_clear_errors();
+
+        $xpath = new DOMXPath($doc);
+        $dataResponse = [];
+
+        // Mengambil semua elemen h2 yang memiliki style 'margin-bottom:3px'
+        $h2Elements = $xpath->query("//h2[contains(@style, 'margin-bottom:3px')]");
+        foreach ($h2Elements as $h2Element) {
+            // Mengambil teks dari elemen h2
+            $lema = $this->_cleanText($h2Element->textContent);
+
+            // Mengambil link Tesaurus dari elemen <p><a>
+            $tesaurusLink = '';
+            $tesaurusAnchor = $xpath->query("following-sibling::p[1]/a[contains(@href, 'tematis/lema')]", $h2Element)->item(0);
+            if ($tesaurusAnchor) {
+                $tesaurusLink = $tesaurusAnchor->getAttribute('href');
+            } else {
+                $tesaurusLink = "http://tesaurus.kemdikbud.go.id/tematis/lema/" . $lema;
+            }
+
+            // Mengambil deskripsi/arti dari ol/li setelah h2
+            $arti = [];
+            $olElement = $xpath->query("following-sibling::ol[1]", $h2Element)->item(0);
+            if ($olElement) {
+                $listItems = $xpath->query(".//li", $olElement);
+                foreach ($listItems as $listItem) {
+                    $deskripsi = $this->_cleanText($listItem->nodeValue);
+                    $arti[] = ['deskripsi' => $deskripsi];
+                }
+            }
+
+            // Mengambil deskripsi/arti dari ul/li setelah h2
+            $ulElement = $xpath->query("following-sibling::ul[@class='adjusted-par'][1]", $h2Element)->item(0);
+            if ($ulElement) {
+                $listItems = $xpath->query(".//li", $ulElement);
+                foreach ($listItems as $listItem) {
+                    $deskripsi = $this->_cleanText($listItem->nodeValue);
+                    $arti[] = ['deskripsi' => $deskripsi];
+                }
+            }
+
+            // Menyimpan data dalam $dataResponse
+            if (!empty($lema) && !empty($arti)) {
+                $dataResponse[] = [
+                    'word' => $word,
+                    'lema' => $lema,
+                    'arti' => $arti,
+                    'tesaurusLink' => $tesaurusLink,
+                ];
+            }
+        }
+
+        return count($dataResponse) ? $dataResponse : [];
     }
 
     public function searchWord($word)
@@ -161,6 +224,32 @@ class KBBIModel extends Model
 
         $dataResponse = [];
 
+        // parserV1 disabled because has been enhance in parserV3
+        /*$_parserV1 = $this->_parserV1($htmlData, $cleanWord, $wordType);
+        if(count($_parserV1)){
+            $dataResponse = $_parserV1;
+
+            return $dataResponse;
+        }*/
+
+        $_parserV2 = $this->_parserV2($htmlData, $cleanWord, $wordType);
+        if(count($_parserV2)){
+            $dataResponse = $_parserV2;
+
+            return $dataResponse;
+        }
+
+        $_parserV3 = $this->_parserV3($htmlData, $cleanWord, $wordType);
+        if(count($_parserV3)){
+            $dataResponse = $_parserV3;
+            
+            return $dataResponse;
+        }
+        
+        return false;
+
+        /*$dataResponse = [];
+
         $_parserV1 = $this->_parserV1($htmlData, $cleanWord);
         if(count($_parserV1)){ 
             $dataResponse = $_parserV1;
@@ -171,6 +260,6 @@ class KBBIModel extends Model
             }
         }
 
-        return count($dataResponse) ? $dataResponse : false;
+        return count($dataResponse) ? $dataResponse : false;*/
     }
 }
