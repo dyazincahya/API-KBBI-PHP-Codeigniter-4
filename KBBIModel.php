@@ -32,6 +32,37 @@ class KBBIModel extends Model
         return $response;
     }
 
+    private function _request__KBBI_API_Zhirrr($word)
+    {
+        $encodedWord = rawurlencode($word);
+        $url = "https://kbbi-api-zhirrr.vercel.app/api/kbbi?text=" . $encodedWord;
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Disable SSL host verification
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL peer verification
+
+        $response = curl_exec($ch);
+
+        if (curl_errno($ch)) {
+            throw new Exception('Error: ' . curl_error($ch));
+        }
+
+        curl_close($ch);
+
+        // Decode JSON response ke array association
+        $result = json_decode($response, true);
+        
+        // Periksa apakah dekoding berhasil
+        if (json_last_error() === JSON_ERROR_NONE) {
+            return $result;
+        } else {
+            // echo 'Error decoding JSON: ' . json_last_error_msg();
+            return [];
+        }
+    }
+
     private function _cleanText($text)
     {
         return preg_replace('/\s+/', ' ', trim($text));
@@ -215,51 +246,83 @@ class KBBIModel extends Model
         return count($dataResponse) ? $dataResponse : [];
     }
 
-    public function searchWord($word)
+    private function _KBBI_official($word)
     {
         // Clean the word
         $cleanWord = $this->_cleanWord($word);
 
+        // If not found in the database, fetch from the web
         $htmlData = $this->_fetchHtml($word);
 
-        $dataResponse = [];
-
         // parserV1 disabled because has been enhance in parserV3
-        /*$_parserV1 = $this->_parserV1($htmlData, $cleanWord, $wordType);
+        /*$_parserV1 = $this->_parserV1($htmlData, $cleanWord);
         if(count($_parserV1)){
             $dataResponse = $_parserV1;
 
             return $dataResponse;
         }*/
 
-        $_parserV2 = $this->_parserV2($htmlData, $cleanWord, $wordType);
-        if(count($_parserV2)){
-            $dataResponse = $_parserV2;
-
-            return $dataResponse;
+        $_parserV2 = $this->_parserV2($htmlData, $cleanWord);
+        if(count($_parserV2))
+        {
+            return $_parserV2;
         }
 
-        $_parserV3 = $this->_parserV3($htmlData, $cleanWord, $wordType);
-        if(count($_parserV3)){
-            $dataResponse = $_parserV3;
-            
+        $_parserV3 = $this->_parserV3($htmlData, $cleanWord);
+        if(count($_parserV3))
+        {
+            return $_parserV3;
+        }
+
+        return [];
+    }
+
+    private function _KBBI_byZhirrr($word): array
+    {
+        // Clean the word
+        $cleanWord = $this->_cleanWord($word);
+
+        $response = $this->_request__KBBI_API_Zhirrr($word);
+        $dataResponse = [];
+
+        if(count($response))
+        {
+            $arti = [];
+            $tesaurusLink = "http://tesaurus.kemdikbud.go.id/tematis/lema/" . $cleanWord;
+
+            foreach ($response['arti'] as $k => $v) {
+                $arti[$k]['deskripsi'] = $v;
+            }
+
+            $dataResponse[] = [
+                'word' => $cleanWord,
+                'lema' => $response['lema'],
+                'arti' => $arti,
+                'tesaurusLink' => $tesaurusLink,
+            ];
+
             return $dataResponse;
+        } 
+        
+        return $dataResponse;
+    }
+
+    public function searchWord($word)
+    {
+        // OFFICIAL
+        $_KBBI_official = $this->_KBBI_official($word);
+        if(count($_KBBI_official))
+        {
+            return $_KBBI_official;
+        }
+        
+        // ZHIRRR
+        $_KBBI_byZhirrr = $this->_KBBI_byZhirrr($word);
+        if(count($_KBBI_byZhirrr))
+        {
+            return $_KBBI_byZhirrr;
         }
         
         return false;
-
-        /*$dataResponse = [];
-
-        $_parserV1 = $this->_parserV1($htmlData, $cleanWord);
-        if(count($_parserV1)){ 
-            $dataResponse = $_parserV1;
-        } else {
-            $_parserV2 = $this->_parserV2($htmlData, $cleanWord);
-            if(count($_parserV2)){ 
-                $dataResponse = $_parserV2;
-            }
-        }
-
-        return count($dataResponse) ? $dataResponse : false;*/
     }
 }
