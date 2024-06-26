@@ -29,6 +29,11 @@
 ```
 https://x-labs.my.id/api/kbbi/search/<PARAM>
 ```
+
+```
+https://x-labs.my.id/api/kbbi?search=<PARAM>
+```
+
 [Coba Sekarang](https://x-labs.my.id/api/kbbi/search/demo)
 
 ## Kompatibel dengan
@@ -52,6 +57,7 @@ $routes->get('/api/kbbi/search/(:any)', 'ApiKBBI::search/$1');
 
 ## End Point
 - /api/kbbi
+- /api/kbbi?search=```KATA_KUNCI```
 - /api/kbbi/search/```KATA_KUNCI```
 
 ## Contoh Respon
@@ -103,6 +109,9 @@ $routes->get('/api/kbbi/search/(:any)', 'ApiKBBI::search/$1');
     ]
 }
 ```
+
+## Log Perubahan
+[Lihat Log Perubahan](https://github.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/releases)
 
 ## Penulis
 [Kang Cahya](https://kang-cahya.com)
