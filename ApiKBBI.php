@@ -9,6 +9,13 @@ class ApiKBBI extends BaseController
 {
     public function index()
     {
+        $search = $this->request->getGet('search');
+
+        if(!empty(isset($search)))
+        {
+            return $this->search($search);
+        }
+        
         return $this->response->setJSON([
             'api' => [
                 "name" => "API KBBI 2024",
