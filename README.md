@@ -111,7 +111,7 @@ $routes->get('/api/kbbi/search/(:any)', 'ApiKBBI::search/$1');
 ```
 
 ## KBBI SQL Database
-Apabila tidak ingin menggunakan API, Anda juga dapat mengimpor data kata dan peribahasa ke dalam basis data pribadi. Anda dapat mengunduh basis datanya di sini: [KBBI-SQL-Database](https://github.com/dyazincahya/KBBI-SQL-database).
+Apabila tidak ingin menggunakan API, Anda juga dapat mengimpor data kata dan peribahasa ke dalam basis data pribadi. Anda dapat mengunduh basis datanya di sini: [KBBI-SQL-Database](https://github.com/dyazincahya/KBBI-SQL-database). Tersedia untuk MySQL, SQLite dan PostgreSQL. Juga tersedia untuk format data CSV, JSON, Markdown, PHP Array, XML, DbUnit, HTML
 
 ## Log Perubahan
 [Lihat Log Perubahan](https://github.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/releases)
