@@ -20,6 +20,7 @@ class KBBIModel extends Model
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Disable SSL host verification
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL peer verification
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 
         $response = curl_exec($ch);
 
@@ -42,6 +43,7 @@ class KBBIModel extends Model
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Disable SSL host verification
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL peer verification
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 
         $response = curl_exec($ch);
 
@@ -309,11 +311,16 @@ class KBBIModel extends Model
 
     public function searchWord($word)
     {
-        // OFFICIAL
-        $_KBBI_official = $this->_KBBI_official($word);
-        if(count($_KBBI_official))
-        {
-            return $_KBBI_official;
+        try {
+            // OFFICIAL
+            $_KBBI_official = $this->_KBBI_official($word);
+            if(count($_KBBI_official))
+            {
+                return $_KBBI_official;
+            }
+        } catch (\Exception $e) {
+            // Log the error message or handle it as needed
+            error_log("Official API error: " . $e->getMessage());
         }
         
         // ZHIRRR
