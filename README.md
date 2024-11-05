@@ -110,6 +110,13 @@ $routes->get('/api/kbbi/search/(:any)', 'ApiKBBI::search/$1');
 }
 ```
 
+## Optimasi Hosting
+Anda dapat melalukan beberapa optimasi pada server hosting agar API ini dapat berjalan dengan lebih optimal. diantaranya sebagai berikut:
+1. ```memory_limit```: Ubah ke nilai yang lebih besar, misalnya 256M atau 512M.
+2. ```max_execution_time```: Atur ke nilai yang lebih tinggi, misalnya 120 detik atau lebih, sesuai kebutuhan.
+3. Aktifkan ```OPcache```, pastikan versi PHP yang Anda gunakan mendukung OPcache (biasanya versi 7.0 ke atas)
+4. Aktifkan ekstensi PHP ```dom``` atau ```simplexml```
+
 ## KBBI SQL Database
 Apabila tidak ingin menggunakan API, Anda juga dapat mengimpor data kata dan peribahasa ke dalam basis data pribadi. Anda dapat mengunduh basis datanya di sini: [KBBI-SQL-Database](https://github.com/dyazincahya/KBBI-SQL-database). Tersedia untuk MySQL, SQLite dan PostgreSQL. Juga tersedia untuk format data CSV, JSON, Markdown, PHP Array, XML, DbUnit, HTML
 
