@@ -20,7 +20,12 @@ class KBBIModel extends Model
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Disable SSL host verification
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL peer verification
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Localhost');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Forwarded-For: 127.0.0.1']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
 
         $response = curl_exec($ch);
 
@@ -43,7 +48,12 @@ class KBBIModel extends Model
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Disable SSL host verification
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL peer verification
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Localhost');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Forwarded-For: 127.0.0.1']);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
+        curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
 
         $response = curl_exec($ch);
 
@@ -319,15 +329,14 @@ class KBBIModel extends Model
                 return $_KBBI_official;
             }
         } catch (\Exception $e) {
+            // ZHIRRR
+            $_KBBI_byZhirrr = $this->_KBBI_byZhirrr($word);
+            if(count($_KBBI_byZhirrr))
+            {
+                return $_KBBI_byZhirrr;
+            }
             // Log the error message or handle it as needed
-            error_log("Official API error: " . $e->getMessage());
-        }
-        
-        // ZHIRRR
-        $_KBBI_byZhirrr = $this->_KBBI_byZhirrr($word);
-        if(count($_KBBI_byZhirrr))
-        {
-            return $_KBBI_byZhirrr;
+            // error_log("Official API error: " . $e->getMessage());
         }
         
         return false;
