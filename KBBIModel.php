@@ -141,49 +141,33 @@ class KBBIModel extends Model
 
     private function _parserV2($htmlData, $word)
     {
-        $doc = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $doc->loadHTML($htmlData);
-        libxml_clear_errors();
-
-        $xpath = new DOMXPath($doc);
+        $doc = Dom\HTMLDocument::createFromString($htmlData, LIBXML_NOERROR);
         $dataResponse = [];
-
-        $contentDiv = $xpath->query("//div[contains(@class, 'container body-content')]")->item(0);
+    
+        $contentDiv = $doc->querySelector("div.container.body-content");
         if (!$contentDiv) {
             return false;
         }
-
+    
         // Mengambil semua elemen h2 dalam div body-content
-        $h2Elements = $xpath->query(".//h2[contains(@style, 'margin-bottom:3px')]", $contentDiv);
-        foreach ($h2Elements as $i => $h2Element) {
+        foreach ($contentDiv->querySelectorAll("h2[style*='margin-bottom:3px']") as $h2Element) {
             // Mengambil lema dari link a di dalam span rootword
-            $lemaLink = $xpath->query(".//span[contains(@class, 'rootword')]/a", $h2Element)->item(0);
-            $lema = '';
-            if ($lemaLink) {
-                $lema = $this->_cleanText($lemaLink->nodeValue);
-            }
-
+            $lemaLink = $h2Element->querySelector("span.rootword > a");
+            $lema = $lemaLink ? $this->_cleanText($lemaLink->textContent) : '';
+    
             // Mengambil link Tesaurus
-            $tesaurusLink = '';
-            $tesaurusAnchor = $xpath->query(".//p/a[contains(@href, 'tematis/lema')]", $h2Element)->item(0);
-            if ($tesaurusAnchor) {
-                $tesaurusLink = $tesaurusAnchor->getAttribute('href');
-            } else {
-                $tesaurusLink = "http://tesaurus.kemdikbud.go.id/tematis/lema/".$word;
-            }
-
+            $tesaurusLink = $h2Element->querySelector("p > a[href*='tematis/lema']")?->getAttribute('href') ?? "http://tesaurus.kemdikbud.go.id/tematis/lema/" . $word;
+    
             // Mengambil deskripsi/arti dari ul/li setelah h2
-            $ulElement = $xpath->query("following-sibling::ul[@class='adjusted-par'][1]", $h2Element)->item(0);
+            $ulElement = $h2Element->nextElementSibling?->classList->contains('adjusted-par') ? $h2Element->nextElementSibling : null;
             $arti = [];
             if ($ulElement) {
-                $listItems = $xpath->query(".//li", $ulElement);
-                foreach ($listItems as $j => $listItem) {
-                    $deskripsi = $this->_cleanText($listItem->nodeValue);
+                foreach ($ulElement->querySelectorAll("li") as $listItem) {
+                    $deskripsi = $this->_cleanText($listItem->textContent);
                     $arti[] = ['deskripsi' => $deskripsi];
                 }
             }
-
+    
             // Menyimpan data dalam $dataResponse
             if (!empty($lema) && !empty($arti)) {
                 $dataResponse[] = [
@@ -194,56 +178,41 @@ class KBBIModel extends Model
                 ];
             }
         }
-
+    
         return count($dataResponse) ? $dataResponse : [];
     }
-
+    
     private function _parserV3($htmlData, $word)
     {
-        $doc = new DOMDocument();
-        libxml_use_internal_errors(true);
-        $doc->loadHTML($htmlData);
-        libxml_clear_errors();
-
-        $xpath = new DOMXPath($doc);
+        $doc = Dom\HTMLDocument::createFromString($htmlData, LIBXML_NOERROR);
         $dataResponse = [];
-
+    
         // Mengambil semua elemen h2 yang memiliki style 'margin-bottom:3px'
-        $h2Elements = $xpath->query("//h2[contains(@style, 'margin-bottom:3px')]");
-        foreach ($h2Elements as $h2Element) {
-            // Mengambil teks dari elemen h2
+        foreach ($doc->querySelectorAll("h2[style*='margin-bottom:3px']") as $h2Element) {
             $lema = $this->_cleanText($h2Element->textContent);
-
+    
             // Mengambil link Tesaurus dari elemen <p><a>
-            $tesaurusLink = '';
-            $tesaurusAnchor = $xpath->query("following-sibling::p[1]/a[contains(@href, 'tematis/lema')]", $h2Element)->item(0);
-            if ($tesaurusAnchor) {
-                $tesaurusLink = $tesaurusAnchor->getAttribute('href');
-            } else {
-                $tesaurusLink = "http://tesaurus.kemdikbud.go.id/tematis/lema/" . $lema;
-            }
-
+            $tesaurusLink = $h2Element->nextElementSibling?->querySelector("a[href*='tematis/lema']")?->getAttribute('href') ?? "http://tesaurus.kemdikbud.go.id/tematis/lema/" . $lema;
+    
             // Mengambil deskripsi/arti dari ol/li setelah h2
             $arti = [];
-            $olElement = $xpath->query("following-sibling::ol[1]", $h2Element)->item(0);
+            $olElement = $h2Element->nextElementSibling?->tagName === 'OL' ? $h2Element->nextElementSibling : null;
             if ($olElement) {
-                $listItems = $xpath->query(".//li", $olElement);
-                foreach ($listItems as $listItem) {
-                    $deskripsi = $this->_cleanText($listItem->nodeValue);
+                foreach ($olElement->querySelectorAll("li") as $listItem) {
+                    $deskripsi = $this->_cleanText($listItem->textContent);
                     $arti[] = ['deskripsi' => $deskripsi];
                 }
             }
-
+    
             // Mengambil deskripsi/arti dari ul/li setelah h2
-            $ulElement = $xpath->query("following-sibling::ul[@class='adjusted-par'][1]", $h2Element)->item(0);
+            $ulElement = $h2Element->nextElementSibling?->classList->contains('adjusted-par') ? $h2Element->nextElementSibling : null;
             if ($ulElement) {
-                $listItems = $xpath->query(".//li", $ulElement);
-                foreach ($listItems as $listItem) {
-                    $deskripsi = $this->_cleanText($listItem->nodeValue);
+                foreach ($ulElement->querySelectorAll("li") as $listItem) {
+                    $deskripsi = $this->_cleanText($listItem->textContent);
                     $arti[] = ['deskripsi' => $deskripsi];
                 }
             }
-
+    
             // Menyimpan data dalam $dataResponse
             if (!empty($lema) && !empty($arti)) {
                 $dataResponse[] = [
@@ -254,9 +223,10 @@ class KBBIModel extends Model
                 ];
             }
         }
-
+    
         return count($dataResponse) ? $dataResponse : [];
     }
+
 
     private function _KBBI_official($word)
     {
