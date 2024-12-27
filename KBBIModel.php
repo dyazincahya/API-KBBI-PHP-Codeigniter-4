@@ -74,7 +74,7 @@ class KBBIModel extends Model
 
     private function _fetchHtml($word)
     {
-        $userAgents = $this->_user_agent();
+        $userAgent = $this->_user_agent();
         $encodedWord = rawurlencode($word); 
         $url = "https://kbbi.kemdikbud.go.id/entri/" . $encodedWord;
         $ch = curl_init($url);
@@ -83,13 +83,13 @@ class KBBIModel extends Model
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Disable SSL host verification
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL peer verification
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Localhost');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Forwarded-For: 127.0.0.1']);
+        // curl_setopt($ch, CURLOPT_USERAGENT, 'Localhost');
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Forwarded-For: 127.0.0.1']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 20);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
         curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
-        curl_setopt($ch, CURLOPT_USERAGENT, $userAgents);
+        curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
 
         $response = curl_exec($ch);
 
@@ -104,7 +104,7 @@ class KBBIModel extends Model
 
     private function _request__KBBI_API_Zhirrr($word)
     {
-        $userAgents = $this->_user_agent();
+        $userAgent = $this->_user_agent();
         $encodedWord = rawurlencode($word);
         $url = "https://kbbi-api-zhirrr.vercel.app/api/kbbi?text=" . $encodedWord;
         $ch = curl_init($url);
@@ -113,13 +113,13 @@ class KBBIModel extends Model
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false); // Disable SSL host verification
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // Disable SSL peer verification
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Localhost');
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Forwarded-For: 127.0.0.1']);
+        // curl_setopt($ch, CURLOPT_USERAGENT, 'Localhost');
+        // curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Forwarded-For: 127.0.0.1']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 20);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
         curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
-        curl_setopt($ch, CURLOPT_USERAGENT, $userAgents);
+        curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
 
         $response = curl_exec($ch);
 
