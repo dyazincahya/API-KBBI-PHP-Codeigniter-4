@@ -8,10 +8,73 @@ use DOMXPath;
 
 class KBBIModel extends Model
 {
-    protected $table = 'kbbi_entries';
+    private function _user_agent(){
+        $userAgents = [
+            // Chrome (Desktop)
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+
+            // Chrome (Mobile)
+            "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1",
+
+            // Firefox (Desktop)
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:114.0) Gecko/20100101 Firefox/114.0",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:114.0) Gecko/20100101 Firefox/114.0",
+            "Mozilla/5.0 (X11; Linux x86_64; rv:114.0) Gecko/20100101 Firefox/114.0",
+
+            // Firefox (Mobile)
+            "Mozilla/5.0 (Android 10; Mobile; rv:114.0) Gecko/114.0 Firefox/114.0",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/537.36 (KHTML, like Gecko) FxiOS/114.0 Mobile/15E148 Safari/604.1",
+
+            // Edge (Desktop)
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.0.0",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.0.0",
+
+            // Safari (Desktop)
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Safari/605.1.15",
+
+            // Safari (Mobile)
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1",
+            "Mozilla/5.0 (iPad; CPU OS 16_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.5 Mobile/15E148 Safari/604.1",
+
+            // Opera (Desktop)
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 OPR/100.0.0.0",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 OPR/100.0.0.0",
+
+            // Opera (Mobile)
+            "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36 OPR/74.0.0.0",
+
+            // Samsung Internet
+            "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36 SamsungBrowser/18.0",
+
+            // Internet Explorer
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; Trident/7.0; rv:11.0) like Gecko",
+
+            // UC Browser (Mobile)
+            "Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.0.0 Mobile Safari/537.36 UCBrowser/13.4.0.1306",
+
+            // Brave (Desktop)
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Brave/114.0.0.0",
+
+            // New User Agents Added
+            "Mozilla/5.0 (Linux; Android 13; SM-S911B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Mobile Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (iPad; CPU OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/605.1.15",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Android 11; Mobile; rv:117.0) Gecko/117.0 Firefox/117.0",
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1",
+        ];
+
+        $userAgent = $userAgents[array_rand($userAgents)];
+
+        return $userAgent;
+    }
 
     private function _fetchHtml($word)
     {
+        $userAgents = $this->_user_agent();
         $encodedWord = rawurlencode($word); 
         $url = "https://kbbi.kemdikbud.go.id/entri/" . $encodedWord;
         $ch = curl_init($url);
@@ -26,6 +89,7 @@ class KBBIModel extends Model
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
         curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
+        curl_setopt($ch, CURLOPT_USERAGENT, $userAgents);
 
         $response = curl_exec($ch);
 
@@ -40,6 +104,7 @@ class KBBIModel extends Model
 
     private function _request__KBBI_API_Zhirrr($word)
     {
+        $userAgents = $this->_user_agent();
         $encodedWord = rawurlencode($word);
         $url = "https://kbbi-api-zhirrr.vercel.app/api/kbbi?text=" . $encodedWord;
         $ch = curl_init($url);
@@ -54,6 +119,7 @@ class KBBIModel extends Model
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
         curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
         curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
+        curl_setopt($ch, CURLOPT_USERAGENT, $userAgents);
 
         $response = curl_exec($ch);
 
@@ -141,33 +207,49 @@ class KBBIModel extends Model
 
     private function _parserV2($htmlData, $word)
     {
-        $doc = Dom\HTMLDocument::createFromString($htmlData, LIBXML_NOERROR);
+        $doc = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $doc->loadHTML($htmlData);
+        libxml_clear_errors();
+
+        $xpath = new DOMXPath($doc);
         $dataResponse = [];
-    
-        $contentDiv = $doc->querySelector("div.container.body-content");
+
+        $contentDiv = $xpath->query("//div[contains(@class, 'container body-content')]")->item(0);
         if (!$contentDiv) {
             return false;
         }
-    
+
         // Mengambil semua elemen h2 dalam div body-content
-        foreach ($contentDiv->querySelectorAll("h2[style*='margin-bottom:3px']") as $h2Element) {
+        $h2Elements = $xpath->query(".//h2[contains(@style, 'margin-bottom:3px')]", $contentDiv);
+        foreach ($h2Elements as $i => $h2Element) {
             // Mengambil lema dari link a di dalam span rootword
-            $lemaLink = $h2Element->querySelector("span.rootword > a");
-            $lema = $lemaLink ? $this->_cleanText($lemaLink->textContent) : '';
-    
+            $lemaLink = $xpath->query(".//span[contains(@class, 'rootword')]/a", $h2Element)->item(0);
+            $lema = '';
+            if ($lemaLink) {
+                $lema = $this->_cleanText($lemaLink->nodeValue);
+            }
+
             // Mengambil link Tesaurus
-            $tesaurusLink = $h2Element->querySelector("p > a[href*='tematis/lema']")?->getAttribute('href') ?? "http://tesaurus.kemdikbud.go.id/tematis/lema/" . $word;
-    
+            $tesaurusLink = '';
+            $tesaurusAnchor = $xpath->query(".//p/a[contains(@href, 'tematis/lema')]", $h2Element)->item(0);
+            if ($tesaurusAnchor) {
+                $tesaurusLink = $tesaurusAnchor->getAttribute('href');
+            } else {
+                $tesaurusLink = "http://tesaurus.kemdikbud.go.id/tematis/lema/".$word;
+            }
+
             // Mengambil deskripsi/arti dari ul/li setelah h2
-            $ulElement = $h2Element->nextElementSibling?->classList->contains('adjusted-par') ? $h2Element->nextElementSibling : null;
+            $ulElement = $xpath->query("following-sibling::ul[@class='adjusted-par'][1]", $h2Element)->item(0);
             $arti = [];
             if ($ulElement) {
-                foreach ($ulElement->querySelectorAll("li") as $listItem) {
-                    $deskripsi = $this->_cleanText($listItem->textContent);
+                $listItems = $xpath->query(".//li", $ulElement);
+                foreach ($listItems as $j => $listItem) {
+                    $deskripsi = $this->_cleanText($listItem->nodeValue);
                     $arti[] = ['deskripsi' => $deskripsi];
                 }
             }
-    
+
             // Menyimpan data dalam $dataResponse
             if (!empty($lema) && !empty($arti)) {
                 $dataResponse[] = [
@@ -178,41 +260,56 @@ class KBBIModel extends Model
                 ];
             }
         }
-    
+
         return count($dataResponse) ? $dataResponse : [];
     }
-    
+
     private function _parserV3($htmlData, $word)
     {
-        $doc = Dom\HTMLDocument::createFromString($htmlData, LIBXML_NOERROR);
+        $doc = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $doc->loadHTML($htmlData);
+        libxml_clear_errors();
+
+        $xpath = new DOMXPath($doc);
         $dataResponse = [];
-    
+
         // Mengambil semua elemen h2 yang memiliki style 'margin-bottom:3px'
-        foreach ($doc->querySelectorAll("h2[style*='margin-bottom:3px']") as $h2Element) {
+        $h2Elements = $xpath->query("//h2[contains(@style, 'margin-bottom:3px')]");
+        foreach ($h2Elements as $h2Element) {
+            // Mengambil teks dari elemen h2
             $lema = $this->_cleanText($h2Element->textContent);
-    
+
             // Mengambil link Tesaurus dari elemen <p><a>
-            $tesaurusLink = $h2Element->nextElementSibling?->querySelector("a[href*='tematis/lema']")?->getAttribute('href') ?? "http://tesaurus.kemdikbud.go.id/tematis/lema/" . $lema;
-    
+            $tesaurusLink = '';
+            $tesaurusAnchor = $xpath->query("following-sibling::p[1]/a[contains(@href, 'tematis/lema')]", $h2Element)->item(0);
+            if ($tesaurusAnchor) {
+                $tesaurusLink = $tesaurusAnchor->getAttribute('href');
+            } else {
+                $tesaurusLink = "http://tesaurus.kemdikbud.go.id/tematis/lema/" . $lema;
+            }
+
             // Mengambil deskripsi/arti dari ol/li setelah h2
             $arti = [];
-            $olElement = $h2Element->nextElementSibling?->tagName === 'OL' ? $h2Element->nextElementSibling : null;
+            $olElement = $xpath->query("following-sibling::ol[1]", $h2Element)->item(0);
             if ($olElement) {
-                foreach ($olElement->querySelectorAll("li") as $listItem) {
-                    $deskripsi = $this->_cleanText($listItem->textContent);
+                $listItems = $xpath->query(".//li", $olElement);
+                foreach ($listItems as $listItem) {
+                    $deskripsi = $this->_cleanText($listItem->nodeValue);
                     $arti[] = ['deskripsi' => $deskripsi];
                 }
             }
-    
+
             // Mengambil deskripsi/arti dari ul/li setelah h2
-            $ulElement = $h2Element->nextElementSibling?->classList->contains('adjusted-par') ? $h2Element->nextElementSibling : null;
+            $ulElement = $xpath->query("following-sibling::ul[@class='adjusted-par'][1]", $h2Element)->item(0);
             if ($ulElement) {
-                foreach ($ulElement->querySelectorAll("li") as $listItem) {
-                    $deskripsi = $this->_cleanText($listItem->textContent);
+                $listItems = $xpath->query(".//li", $ulElement);
+                foreach ($listItems as $listItem) {
+                    $deskripsi = $this->_cleanText($listItem->nodeValue);
                     $arti[] = ['deskripsi' => $deskripsi];
                 }
             }
-    
+
             // Menyimpan data dalam $dataResponse
             if (!empty($lema) && !empty($arti)) {
                 $dataResponse[] = [
@@ -223,10 +320,9 @@ class KBBIModel extends Model
                 ];
             }
         }
-    
+
         return count($dataResponse) ? $dataResponse : [];
     }
-
 
     private function _KBBI_official($word)
     {
