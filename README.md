@@ -36,6 +36,11 @@ https://x-labs.my.id/api/kbbi?search=<PARAM>
 
 [Coba Sekarang](https://x-labs.my.id/api/kbbi/search/demo)
 
+## Coba API KBBI IV
+Untuk pengalaman lebih baik, bisa coba API KBBI IV ini.
+
+[Coba Sekarang](https://services.x-labs.my.id/kbbi/)
+
 ## Kompatibel dengan
 - PHP 8.3.8
 - Codeigniter 4.3.8 atau lebih baru
