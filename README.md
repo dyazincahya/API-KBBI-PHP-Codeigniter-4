@@ -36,8 +36,15 @@ https://x-labs.my.id/api/kbbi?search=<PARAM>
 
 [Coba Sekarang](https://x-labs.my.id/api/kbbi/search/demo)
 
-## Coba API KBBI IV
-Untuk pengalaman lebih baik, bisa coba API KBBI IV ini.
+## Coba API KBBI (Versi GO Lang)
+Untuk pengalaman lebih baik, bisa coba API KBBI ini. API ini di bangun dengan menggunakan bahasa GO. Anda dapat melihat kode lengkapnya pada repositori ini [https://github.com/dyazincahya/kbbi-go](https://github.com/dyazincahya/kbbi-go).
+```
+https://services.x-labs.my.id/kbbi/search?word=param
+```
+
+```
+https://services.x-labs.my.id/kbbi/randomwords?limit=100
+```
 
 [Coba Sekarang](https://services.x-labs.my.id/kbbi/)
 
