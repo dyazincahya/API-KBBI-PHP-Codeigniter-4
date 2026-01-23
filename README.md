@@ -6,7 +6,7 @@
 {
     "api": {
         "name": "API KBBI 2024",
-        "source": "https://kbbi.kemdikbud.go.id",
+        "source": "https://kbbi.kemendikdasmen.go.id",
         "method": "HTML Parsing"
     },
     "technology": {
