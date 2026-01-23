@@ -11,7 +11,7 @@
     },
     "technology": {
         "lang": "PHP 8.3.8",
-        "framework": "CodeIgniter 4.3.8",
+        "framework": "CodeIgniter 4.6.4",
         "library": [
             "CURL",
             "DOMDocument",
