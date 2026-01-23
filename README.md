@@ -27,11 +27,11 @@
 ```
 ## Coba API
 ```
-https://x-labs.my.id/api/kbbi/search/<PARAM>
+https://openapi.x-labs.my.id/api/kbbi/search/<PARAM>
 ```
 
 ```
-https://x-labs.my.id/api/kbbi?search=<PARAM>
+https://openapi.x-labs.my.id/api/kbbi?search=<PARAM>
 ```
 
 [Coba Sekarang](https://x-labs.my.id/api/kbbi/search/demo)
