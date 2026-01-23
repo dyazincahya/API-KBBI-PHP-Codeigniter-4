@@ -2,12 +2,12 @@
 
 namespace App\Controllers;
 
-use App\Models\KBBIModel;
 use CodeIgniter\HTTP\ResponseInterface;
+use App\Models\KBBIModel;
 
 class ApiKBBI extends BaseController
 {
-    public function index()
+    public function index(): ResponseInterface
     {
         $search = $this->request->getGet('search');
 
@@ -19,7 +19,7 @@ class ApiKBBI extends BaseController
         return $this->response->setJSON([
             'api' => [
                 "name" => "API KBBI 2024",
-                "source" => "https://kbbi.kemdikbud.go.id",
+                "source" => "https://kbbi.kemendikdasmen.go.id",
                 "method" => "HTML Parsing"
             ],
             'technology' => [
@@ -35,32 +35,44 @@ class ApiKBBI extends BaseController
         ]);
     }
 
-    public function search($word)
+    public function search($word=null): ResponseInterface
     {
-        $model = new KBBIModel();
+        if(!empty($word))
+        {
+            $model = new KBBIOnlyModel();
 
-        try {
-            $result = $model->searchWord($word);
-            if ($result) {
-                return $this->response->setJSON([
-                    'success' => true,
-                    'status' => 200,
-                    'message' => "Results found.",
-                    'data' => $result,
-                ]);
-            } else {
-                return $this->response->setJSON([
+            try {
+                $result = $model->searchWord($word);
+                if ($result) {
+                    return $this->response->setHeader('Content-Type', 'application/json')->setJSON([
+                        'success' => true,
+                        'status' => 200,
+                        'message' => "Hasil ditemukan.",
+                        'data' => $result,
+                    ]);
+                }
+
+                return $this->response->setHeader('Content-Type', 'application/json')->setJSON([
                     'success' => true,
                     'status' => 404,
-                    'message' => 'No results found.',
+                    'message' => 'Hasil tidak ditemukan!',
+                    'data' => [],
                 ], ResponseInterface::HTTP_NOT_FOUND);
+            } catch (\Exception $e) {
+                return $this->response->setHeader('Content-Type', 'application/json')->setJSON([
+                    'success' => false,
+                    'status' => 500,
+                    'message' => $e->getMessage(),
+                    'data' => [],
+                ], ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
             }
-        } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'success' => false,
-                'status' => 500,
-                'message' => $e->getMessage(),
-            ], ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        return $this->response->setHeader('Content-Type', 'application/json')->setJSON([
+            'success' => false,
+            'status' => 404,
+            'message' => 'Parameter tidak ditemukan!',
+            'data' => [],
+        ], ResponseInterface::HTTP_NOT_FOUND);
     }
 }
