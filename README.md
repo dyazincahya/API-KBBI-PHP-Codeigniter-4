@@ -27,14 +27,14 @@
 ```
 ## Coba API
 ```
-https://openapi.x-labs.my.id/api/kbbi/search/<PARAM>
+https://openapi.x-labs.my.id/kbbi/search/<PARAM>
 ```
 
 ```
 https://openapi.x-labs.my.id/api/kbbi?search=<PARAM>
 ```
 
-[Coba Sekarang](https://x-labs.my.id/api/kbbi/search/demo)
+[Coba Sekarang](https://x-labs.my.id/kbbi/search/demo)
 
 ## Coba API KBBI (Versi GO Lang)
 Untuk pengalaman lebih baik, bisa coba API KBBI ini. API ini di bangun dengan menggunakan bahasa GO. Anda dapat melihat kode lengkapnya pada repositori ini [https://github.com/dyazincahya/kbbi-go](https://github.com/dyazincahya/kbbi-go).
