@@ -63,17 +63,17 @@ https://services.x-labs.my.id/kbbi/randomwords?limit=100
 - Tambahkan baris router berikut pada file ```\app\Config\Routes.php```
 ```php
 // KBBI Router : \Config\Routes.php
-$routes->get('/api/kbbi', 'ApiKBBI::index');
-$routes->get('/api/kbbi/search/(:any)', 'ApiKBBI::search/$1');
+$routes->get('/kbbi', 'ApiKBBI::index');
+$routes->get('/kbbi/search/(:any)', 'ApiKBBI::search/$1');
 ```
 
 ## End Point
-- /api/kbbi
-- /api/kbbi?search=```KATA_KUNCI```
-- /api/kbbi/search/```KATA_KUNCI```
+- /kbbi
+- /kbbi?search=```KATA_KUNCI```
+- /kbbi/search/```KATA_KUNCI```
 
 ## Contoh Respon
-#### /api/kbbi/search/bagaimana
+#### /kbbi/search/bagaimana
 ```json
 {
     "success": true,
@@ -102,7 +102,7 @@ $routes->get('/api/kbbi/search/(:any)', 'ApiKBBI::search/$1');
 }
 ```
 
-#### /api/kbbi/search/bagai%20babi%20kelaparan
+#### /kbbi/search/bagai%20babi%20kelaparan
 ```json
 {
     "success": true,
