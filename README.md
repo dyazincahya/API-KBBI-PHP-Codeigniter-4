@@ -129,6 +129,11 @@ Anda dapat melalukan beberapa optimasi pada server hosting agar API ini dapat be
 3. Aktifkan ```OPcache```, pastikan versi PHP yang Anda gunakan mendukung OPcache (biasanya versi 7.0 ke atas)
 4. Aktifkan ekstensi PHP ```dom``` atau ```simplexml```
 
+## Aplikasi KBBI untuk Android
+![MyKBBI](https://play-lh.googleusercontent.com/CC7HRNLH2h2Gd6CUvBAQJOKphi9wU1Wbwr-eXlaXtOB56Mmp3hX5jYdhlUloQZeJTUw=w240-h480-rw)
+
+[MyKBBI - Kamus Bahasa Indonesia](https://play.google.com/store/apps/details?id=com.kang.cahya.apps.mykbbi) (Unduh via Google Play Store)
+
 ## KBBI SQL Database
 Apabila tidak ingin menggunakan API, Anda juga dapat mengimpor data kata dan peribahasa ke dalam basis data pribadi. Anda dapat mengunduh basis datanya di sini: [KBBI-SQL-Database](https://github.com/dyazincahya/KBBI-SQL-database). Tersedia untuk MySQL, SQLite dan PostgreSQL. Juga tersedia untuk format data CSV, JSON, Markdown, PHP Array, XML, DbUnit, HTML
 
