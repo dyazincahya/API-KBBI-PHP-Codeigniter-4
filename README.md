@@ -10,8 +10,8 @@
         "method": "HTML Parsing"
     },
     "technology": {
-        "lang": "PHP 8.3.8",
-        "framework": "CodeIgniter 4.6.4",
+        "lang": "PHP 8.5",
+        "framework": "CodeIgniter 4.7.3",
         "library": [
             "CURL",
             "DOMDocument",
