@@ -6,7 +6,7 @@ use Exception;
 
 class GeoNodeScraperAPI
 {
-    private string $apiKey = 'YOU_API_KEY_HERE';
+    private string $apiKey = 'MASUKKAN_API_KEY_ANDA_DI_SINI';
     private string $apiUrl = 'https://scraper.geonode.io/v1/extract';
 
     /**
@@ -18,7 +18,7 @@ class GeoNodeScraperAPI
      */
     public function scrape(string $targetUrl): string
     {
-        if (empty($this->apiKey) || $this->apiKey == 'YOU_API_KEY_HERE') {
+        if (empty($this->apiKey) || $this->apiKey == 'MASUKKAN_API_KEY_ANDA_DI_SINI') {
             throw new Exception('GeoNode Scraper API Key is not configured.');
         }
 
