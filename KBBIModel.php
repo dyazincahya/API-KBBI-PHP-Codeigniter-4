@@ -76,110 +76,117 @@ class KBBIModel extends Model
 
   private function _fetchHtml($word)
   {
-    $kbbiHost = 'kbbi.kemendikdasmen.go.id';
-    $kbbiBaseUrl = 'https://' . $kbbiHost;
-    $userAgent = $this->_user_agent();
-    $headers = [
-      "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-      "Accept-Encoding: gzip, deflate",
-      "Accept-Language: en-US,en;q=0.5",
-      "Connection: keep-alive",
-      "Host: " . $kbbiHost,
-      "Referer: " . $kbbiBaseUrl . "/",
-      "Upgrade-Insecure-Requests: 1",
-    ];
-    // Path ke file cookie dalam folder writable
-    $cookieDir = WRITEPATH . 'cookies/';
-    if (!is_dir($cookieDir)) {
-      mkdir($cookieDir, 0777, true);
-    }
-    $cookieFile = $cookieDir . 'kbbi-kemendikdasmen-goid.txt';
-
-    $encodedWord = rawurlencode($word);
-    $url = $kbbiBaseUrl . "/entri/" . $encodedWord;
-    $ch = curl_init($url);
-    $responseHeaders = [];
-
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
-    curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
-    curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
-    curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($curl, $headerLine) use (&$responseHeaders) {
-      $len = strlen($headerLine);
-      $line = trim($headerLine);
-      if ($line === '' || !str_contains($line, ':')) {
-        return $len;
+    try {
+      $kbbiHost = 'kbbi.kemendikdasmen.go.id';
+      $kbbiBaseUrl = 'https://' . $kbbiHost;
+      $userAgent = $this->_user_agent();
+      $headers = [
+        "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Encoding: gzip, deflate",
+        "Accept-Language: en-US,en;q=0.5",
+        "Connection: keep-alive",
+        "Host: " . $kbbiHost,
+        "Referer: " . $kbbiBaseUrl . "/",
+        "Upgrade-Insecure-Requests: 1",
+      ];
+      // Path ke file cookie dalam folder writable
+      $cookieDir = WRITEPATH . 'cookies/';
+      if (!is_dir($cookieDir)) {
+        mkdir($cookieDir, 0777, true);
       }
-
-      [$name, $value] = explode(':', $line, 2);
-      $name = strtolower(trim($name));
-      $value = trim($value);
-      if ($name !== '') {
-        if (!array_key_exists($name, $responseHeaders)) {
-          $responseHeaders[$name] = $value;
-        } else {
-          $responseHeaders[$name] .= ', ' . $value;
+      $cookieFile = $cookieDir . 'kbbi-kemendikdasmen-goid.txt';
+  
+      $encodedWord = rawurlencode($word);
+      $url = $kbbiBaseUrl . "/entri/" . $encodedWord;
+      $ch = curl_init($url);
+      $responseHeaders = [];
+  
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+      curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+      curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+      curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+      curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');
+      curl_setopt($ch, CURLOPT_MAXREDIRS, 3);
+      curl_setopt($ch, CURLOPT_USERAGENT, $userAgent);
+      curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+      curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($curl, $headerLine) use (&$responseHeaders) {
+        $len = strlen($headerLine);
+        $line = trim($headerLine);
+        if ($line === '' || !str_contains($line, ':')) {
+          return $len;
         }
+  
+        [$name, $value] = explode(':', $line, 2);
+        $name = strtolower(trim($name));
+        $value = trim($value);
+        if ($name !== '') {
+          if (!array_key_exists($name, $responseHeaders)) {
+            $responseHeaders[$name] = $value;
+          } else {
+            $responseHeaders[$name] .= ', ' . $value;
+          }
+        }
+  
+        return $len;
+      });
+  
+      // Gunakan file cookie untuk menyimpan sesi
+      curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
+      curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
+  
+      $response = curl_exec($ch);
+  
+      if (curl_errno($ch)) {
+        $error_msg = curl_error($ch);
+        $effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+        unset($ch);
+        throw new Exception('cURL Error: ' . $error_msg . ($effectiveUrl ? ' (url: ' . $effectiveUrl . ')' : ''));
       }
-
-      return $len;
-    });
-
-    // Gunakan file cookie untuk menyimpan sesi
-    curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
-    curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
-
-    $response = curl_exec($ch);
-
-    if (curl_errno($ch)) {
-      $error_msg = curl_error($ch);
+  
+      $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
       $effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
       unset($ch);
-      throw new Exception('cURL Error: ' . $error_msg . ($effectiveUrl ? ' (url: ' . $effectiveUrl . ')' : ''));
-    }
-
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    $effectiveUrl = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-    unset($ch);
-
-    $isCloudflare =
-      (isset($responseHeaders['server']) && stripos($responseHeaders['server'], 'cloudflare') !== false) ||
-      isset($responseHeaders['cf-ray']) ||
-      isset($responseHeaders['cf-mitigated']) ||
-      isset($responseHeaders['cf-cache-status']);
-
-    if ($httpCode === 200 && $isCloudflare && is_string($response)) {
-      $challengeMarkers = [
-        'cf-chl',
-        '__cf_chl',
-        'cf-browser-verification',
-        'Just a moment',
-        'Checking your browser',
-        'Attention Required',
-      ];
-      foreach ($challengeMarkers as $marker) {
-        if (stripos($response, $marker) !== false) {
-          $ray = $responseHeaders['cf-ray'] ?? null;
-          throw new Exception('Cloudflare challenge page detected' . ($ray ? ' (cf-ray: ' . $ray . ')' : '') . ($effectiveUrl ? ' (url: ' . $effectiveUrl . ')' : ''));
+  
+      $isCloudflare =
+        (isset($responseHeaders['server']) && stripos($responseHeaders['server'], 'cloudflare') !== false) ||
+        isset($responseHeaders['cf-ray']) ||
+        isset($responseHeaders['cf-mitigated']) ||
+        isset($responseHeaders['cf-cache-status']);
+  
+      if ($httpCode === 200 && $isCloudflare && is_string($response)) {
+        $challengeMarkers = [
+          'cf-chl',
+          '__cf_chl',
+          'cf-browser-verification',
+          'Just a moment',
+          'Checking your browser',
+          'Attention Required',
+        ];
+        foreach ($challengeMarkers as $marker) {
+          if (stripos($response, $marker) !== false) {
+            $ray = $responseHeaders['cf-ray'] ?? null;
+            throw new Exception('Cloudflare challenge page detected' . ($ray ? ' (cf-ray: ' . $ray . ')' : '') . ($effectiveUrl ? ' (url: ' . $effectiveUrl . ')' : ''));
+          }
         }
       }
-    }
-
-    if ($httpCode !== 200) {
-      if ($isCloudflare && in_array($httpCode, [403, 429, 503], true)) {
-        $ray = $responseHeaders['cf-ray'] ?? null;
-        throw new Exception('Blocked by Cloudflare (HTTP status code: ' . $httpCode . ')' . ($ray ? ' (cf-ray: ' . $ray . ')' : '') . ($effectiveUrl ? ' (url: ' . $effectiveUrl . ')' : ''));
+  
+      if ($httpCode !== 200) {
+        if ($isCloudflare && in_array($httpCode, [403, 429, 503], true)) {
+          $ray = $responseHeaders['cf-ray'] ?? null;
+          throw new Exception('Blocked by Cloudflare (HTTP status code: ' . $httpCode . ')' . ($ray ? ' (cf-ray: ' . $ray . ')' : '') . ($effectiveUrl ? ' (url: ' . $effectiveUrl . ')' : ''));
+        }
+        throw new Exception('Failed to fetch HTML, HTTP status code: ' . $httpCode . ($effectiveUrl ? ' (url: ' . $effectiveUrl . ')' : ''));
       }
-      throw new Exception('Failed to fetch HTML, HTTP status code: ' . $httpCode . ($effectiveUrl ? ' (url: ' . $effectiveUrl . ')' : ''));
-    }
-
-    return $response;
+  
+      return $response;
+    } catch (Exception $e) {
+			// Fallback ke GeoNode Scraper API jika koneksi langsung gagal
+			$targetUrl = 'https://kbbi.kemendikdasmen.go.id/entri/' . rawurlencode($word);
+			$geoNode = new \App\Libraries\GeoNodeScraperAPI();
+			return $geoNode->scrape($targetUrl);
+		}
   }
 
   private function _cleanText($text)
