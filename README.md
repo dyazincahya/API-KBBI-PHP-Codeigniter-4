@@ -16,25 +16,51 @@
 
 Berikut adalah beberapa tampilan dasbor dari API KBBI 2026:
 
+<details>
+<summary><b>Klik untuk melihat tangkapan layar</b></summary>
+<br>
+
 ### 1. Dasbor Utama (Informasi Teknologi dan Spesifikasi)
 
 Halaman utama yang menampilkan status server, spesifikasi sistem, data penulis, dan daftar endpoint yang tersedia.
-![Dashboard Tab](public/screenshots/1.png)
+
+<br>
+
+<img src="public/screenshots/1.png" alt="Dashboard Tab" width="100%" />
+
+<br><br><br>
 
 ### 2. Tampilan JSON View (Raw JSON)
 
 Tampilan data visualisasi spesifikasi sistem dan konfigurasi API dalam representasi JSON interaktif.
-![Raw JSON Tab](public/screenshots/2.png)
+
+<br>
+
+<img src="public/screenshots/2.png" alt="Raw JSON Tab" width="100%" />
+
+<br><br><br>
 
 ### 3. Uji Coba API (Sandbox Tab)
 
 Fitur sandbox untuk menguji pencarian kata secara langsung dari halaman utama.
-![Sandbox Tab](public/screenshots/3.png)
+
+<br>
+
+<img src="public/screenshots/3.png" alt="Sandbox Tab" width="100%" />
+
+<br><br><br>
 
 ### 4. Peringatan Validasi Konfigurasi Server (.env dan GeoNode Key)
 
 Notifikasi yang otomatis muncul jika berkas konfigurasi `.env` atau GeoNode API Key belum dikonfigurasi dengan benar di server.
-![Notifikasi Setup](public/screenshots/1-nosetup-all.png)
+
+<br>
+
+<img src="public/screenshots/1-nosetup-all.png" alt="Notifikasi Setup" width="100%" />
+
+<br>
+
+</details>
 
 ---
 
@@ -124,6 +150,8 @@ Jika Anda menerapkan API ini ke hosting/VPS, IP server Anda kemungkinan besar ak
    geonode.apiKeys.0.reset_day = 10
    ```
    _Anda dapat memasukkan lebih dari satu akun/kunci untuk dirotasi secara bergantian oleh sistem._
+    
+   _Catatan: Setiap akun GeoNode Scraper API memiliki batasan (limit) gratis sebesar 1.500 permintaan per bulan, yang akan diperbarui secara otomatis (reset) setiap bulannya berdasarkan tanggal pendaftaran masing-masing akun._
 
 #### 5. Jalankan Server Lokal
 
