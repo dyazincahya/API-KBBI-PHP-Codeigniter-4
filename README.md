@@ -70,27 +70,25 @@ Untuk menjaga performa dan efisiensi kuota, API ini menggunakan alur kerja multi
 
 ```mermaid
 graph TD
-    Start([Mulai Pencarian Kata]) --> CheckDB{Apakah kata ada di Database/Cache?}
-    CheckDB -- Ya --> ReturnData[Kembalikan Hasil dari Database/Cache]
-    CheckDB -- Tidak --> Lapis1[Lapis 1: Scraping Langsung cURL ke KBBI Resmi]
-
+    Start([Mulai Pencarian Kata]) --> Lapis1[Lapis 1: Scraping Langsung cURL ke KBBI Resmi]
+    
     Lapis1 --> CheckSuccess1{Apakah Scraping Langsung Sukses?}
-    CheckSuccess1 -- Ya --> SaveDB[Simpan ke Database/Cache] --> ReturnData
+    CheckSuccess1 -- Ya --> ParseHTML[Ubah Struktur HTML ke JSON] --> ReturnData([Kembalikan Hasil Pencarian])
     CheckSuccess1 -- Tidak/WAF Block/Timeout --> Lapis2[Lapis 2: Fallback ke GeoNode Scraper API]
-
+    
     Lapis2 --> CheckConfig{Apakah GeoNode API Key Terkonfigurasi?}
     CheckConfig -- Tidak --> ShowErrorConfig[Tolak & Kembalikan Error Konfigurasi]
     CheckConfig -- Ya --> CheckLimit{Apakah Total Limit Bulanan Lokal Tercapai?}
-
+    
     CheckLimit -- Ya --> ShowErrorLimit[Tolak & Kembalikan Error Jatah Limit]
     CheckLimit -- Tidak --> ExecGeoNode[Kirim Request via Proxy Residential GeoNode]
-
+    
     ExecGeoNode --> RotateKey[Rotasi API Key secara Round-Robin]
     RotateKey --> SaveLimit[Catat Penggunaan Kuota lokal di geonode_limit.json]
-    SaveLimit --> SaveDB
+    SaveLimit --> ParseHTML
 ```
 
-1. **Lapis 1 - Scraping Langsung (Direct Request):** Jika data belum ada di database, sistem mencoba melakukan koneksi cURL langsung ke situs resmi KBBI. Proses ini bersifat gratis dan tanpa batasan (sangat cocok untuk localhost).
+1. **Lapis 1 - Scraping Langsung (Direct Request):** Sistem mencoba melakukan koneksi cURL langsung ke situs resmi KBBI. Proses ini bersifat gratis dan tanpa batasan (sangat cocok untuk localhost).
 2. **Lapis 2 - Fallback GeoNode Scraper API (Automated):** Jika koneksi langsung di atas gagal atau mengalami waktu habis (terutama saat dideploy di server VPS yang diblokir oleh WAF KBBI), sistem akan otomatis mengalihkan permintaan menggunakan **GeoNode Scraper API** melalui Proxy Residensial.
 3. **Rotasi Multi-Akun dan Jatah Kuota Lokal:** Mendukung penggunaan lebih dari 1 GeoNode API Key secara bergantian (round-robin) dan dilengkapi dengan pencatat batas kuota bulanan lokal otomatis (`writable/geonode_limit.json`) berdasarkan tanggal pembaruan masing-masing akun agar kuota gratis Anda tidak terlampaui.
 
