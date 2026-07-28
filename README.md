@@ -4,7 +4,7 @@
   <p><em>API pencarian makna kata dan peribahasa KBBI berbasis penapisan HTML menggunakan CodeIgniter 4 dan PHP 8.</em></p>
   
   <p>
-    <img src="https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3%20%7C%208.4-777bb4?style=flat-square&logo=php" alt="PHP Version" />
+    <img src="https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3%20%7C%208.4%20%7C%208.5-777bb4?style=flat-square&logo=php" alt="PHP Version" />
     <img src="https://img.shields.io/badge/CodeIgniter-4.7.4-dd4814?style=flat-square&logo=codeigniter" alt="CodeIgniter Version" />
     <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License" />
   </p>
@@ -102,7 +102,7 @@ Ikuti langkah-langkah di bawah ini untuk memasang dan menjalankan API KBBI ini p
 
 ### Prasyarat Sistem
 
-- PHP versi **8.1** atau yang lebih baru (Disarankan PHP 8.2 / 8.3 / 8.4)
+- PHP versi **8.1** atau yang lebih baru (Disarankan PHP 8.2 / 8.3 / 8.4 / 8.5)
 - Ekstensi PHP diaktifkan: `curl`, `dom`, `xml`
 - [Composer](https://getcomposer.org/) terinstal pada komputer Anda
 - Server Lokal (Disarankan menggunakan **Laragon**, **XAMPP**, atau **WAMP** untuk mempermudah pengaturan lingkungan lokal PHP)
