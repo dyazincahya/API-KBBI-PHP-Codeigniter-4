@@ -1,249 +1,229 @@
-<img src="https://raw.githubusercontent.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/main/kbbi.webp" width="150" />
+<div align="center">
+  <img src="kbbi.webp" width="150" alt="Logo KBBI" />
+  <h1>Unofficial API Kamus Besar Bahasa Indonesia (KBBI) 2026</h1>
+  <p><em>API pencarian makna kata dan peribahasa KBBI berbasis penapisan HTML menggunakan CodeIgniter 4 dan PHP 8.</em></p>
+  
+  <p>
+    <img src="https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3%20%7C%208.4-777bb4?style=flat-square&logo=php" alt="PHP Version" />
+    <img src="https://img.shields.io/badge/CodeIgniter-4.7.4-dd4814?style=flat-square&logo=codeigniter" alt="CodeIgniter Version" />
+    <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License" />
+  </p>
+</div>
 
-# Unofficial API Kamus Besar Bahasa Indonesia (KBBI) 2026
+---
 
-```json
-{
-    "api": {
-        "name": "API KBBI 2026",
-        "source": "https://kbbi.kemendikdasmen.go.id",
-        "method": "HTML Parsing"
-    },
-    "technology": {
-        "lang": "PHP 8.5",
-        "framework": "CodeIgniter 4.7.3",
-        "library": [
-            "CURL",
-            "DOMDocument",
-            "DOMXPath",
-            "GeoNodeScraperAPI",
-        ]
-    },
-    "author": {
-        "name": "Kang Cahya",
-        "blog": "https://kang-cahya.com",
-        "github": "https://github.com/dyazincahya"
-    }
-}
-```
-## Coba API
-```
-https://openapi.x-labs.my.id/kbbi/search/<PARAM>
-```
+## Tangkapan Layar (Screenshots)
 
-```
-https://openapi.x-labs.my.id/kbbi?search=<PARAM>
-```
+Berikut adalah beberapa tampilan dasbor dari API KBBI 2026:
 
-[Coba Sekarang](https://openapi.x-labs.my.id/kbbi/search/demo)
+### 1. Dasbor Utama (Informasi Teknologi dan Spesifikasi)
 
-## Coba API KBBI (Versi GO Lang)
-Untuk pengalaman lebih baik, bisa coba API KBBI ini. API ini di bangun dengan menggunakan bahasa GO. Anda dapat melihat kode lengkapnya pada repositori ini [https://github.com/dyazincahya/kbbi-go](https://github.com/dyazincahya/kbbi-go).
-```
-https://services.x-labs.my.id/kbbi/search?word=param
-```
+Halaman utama yang menampilkan status server, spesifikasi sistem, data penulis, dan daftar endpoint yang tersedia.
+![Dashboard Tab](public/screenshots/1.png)
 
-```
-https://services.x-labs.my.id/kbbi/randomwords?limit=100
-```
+### 2. Tampilan JSON View (Raw JSON)
 
-[Coba Sekarang](https://services.x-labs.my.id/kbbi/)
+Tampilan data visualisasi spesifikasi sistem dan konfigurasi API dalam representasi JSON interaktif.
+![Raw JSON Tab](public/screenshots/2.png)
 
-## Kompatibel dan sudah di test pada
-- PHP 8.5
-- Codeigniter 4.7.3 atau lebih baru
+### 3. Uji Coba API (Sandbox Tab)
 
-## Pustaka yang digunakan
-- CURL
-- DOMDocument
-- DOMXPath
-- GeoNode Scraper API (sebagai Fallback)
+Fitur sandbox untuk menguji pencarian kata secara langsung dari halaman utama.
+![Sandbox Tab](public/screenshots/3.png)
+
+### 4. Peringatan Validasi Konfigurasi Server (.env dan GeoNode Key)
+
+Notifikasi yang otomatis muncul jika berkas konfigurasi `.env` atau GeoNode API Key belum dikonfigurasi dengan benar di server.
+![Notifikasi Setup](public/screenshots/1-nosetup-all.png)
+
+---
 
 ## Alur Kerja Pengambilan Data (Scraping Workflow)
 
-Untuk menjaga performa dan efisiensi kuota, API ini menggunakan 3 lapis alur kerja cerdas saat mencari sebuah kata:
+Untuk menjaga performa dan efisiensi kuota, API ini menggunakan alur kerja multi-lapis saat mencari sebuah kata:
 
-1. **Lapis 1 - Scraping Langsung (Direct Request):** Jika data belum ada di database, sistem mencoba melakukan koneksi cURL langsung ke situs resmi KBBI. Ini gratis dan tanpa batas (cocok untuk localhost).
-2. **Lapis 2 - Fallback GeoNode Scraper API (Automated):** Jika koneksi langsung di atas gagal atau mengalami timeout (terutama saat dideploy di server VPS yang diblokir oleh WAF KBBI), sistem akan otomatis masuk ke blok `catch` dan mengalihkan request menggunakan **GeoNode Scraper API** via Proxy Residential.
+```mermaid
+graph TD
+    Start([Mulai Pencarian Kata]) --> CheckDB{Apakah kata ada di Database/Cache?}
+    CheckDB -- Ya --> ReturnData[Kembalikan Hasil dari Database/Cache]
+    CheckDB -- Tidak --> Lapis1[Lapis 1: Scraping Langsung cURL ke KBBI Resmi]
+
+    Lapis1 --> CheckSuccess1{Apakah Scraping Langsung Sukses?}
+    CheckSuccess1 -- Ya --> SaveDB[Simpan ke Database/Cache] --> ReturnData
+    CheckSuccess1 -- Tidak/WAF Block/Timeout --> Lapis2[Lapis 2: Fallback ke GeoNode Scraper API]
+
+    Lapis2 --> CheckConfig{Apakah GeoNode API Key Terkonfigurasi?}
+    CheckConfig -- Tidak --> ShowErrorConfig[Tolak & Kembalikan Error Konfigurasi]
+    CheckConfig -- Ya --> CheckLimit{Apakah Total Limit Bulanan Lokal Tercapai?}
+
+    CheckLimit -- Ya --> ShowErrorLimit[Tolak & Kembalikan Error Jatah Limit]
+    CheckLimit -- Tidak --> ExecGeoNode[Kirim Request via Proxy Residential GeoNode]
+
+    ExecGeoNode --> RotateKey[Rotasi API Key secara Round-Robin]
+    RotateKey --> SaveLimit[Catat Penggunaan Kuota lokal di geonode_limit.json]
+    SaveLimit --> SaveDB
+```
+
+1. **Lapis 1 - Scraping Langsung (Direct Request):** Jika data belum ada di database, sistem mencoba melakukan koneksi cURL langsung ke situs resmi KBBI. Proses ini bersifat gratis dan tanpa batasan (sangat cocok untuk localhost).
+2. **Lapis 2 - Fallback GeoNode Scraper API (Automated):** Jika koneksi langsung di atas gagal atau mengalami waktu habis (terutama saat dideploy di server VPS yang diblokir oleh WAF KBBI), sistem akan otomatis mengalihkan permintaan menggunakan **GeoNode Scraper API** melalui Proxy Residensial.
+3. **Rotasi Multi-Akun dan Jatah Kuota Lokal:** Mendukung penggunaan lebih dari 1 GeoNode API Key secara bergantian (round-robin) dan dilengkapi dengan pencatat batas kuota bulanan lokal otomatis (`writable/geonode_limit.json`) berdasarkan tanggal pembaruan masing-masing akun agar kuota gratis Anda tidak terlampaui.
 
 ---
 
-## 🔌 Integrasi GeoNode Scraper API (Bypass Blokir IP Server)
+## Panduan Konfigurasi Proyek secara Detail
 
-<img width="1526" height="629" alt="image" src="https://github.com/user-attachments/assets/900b3c8b-a1c9-45f1-be09-bce4095aa3c0" />
+Ikuti langkah-langkah di bawah ini untuk memasang dan menjalankan API KBBI ini pada mesin lokal Anda:
 
+### Prasyarat Sistem
 
-Untuk melewati pemblokiran IP Data Center di server hosting/staging, sistem ini telah dilengkapi dengan library integrasi GeoNode Scraper API.
+- PHP versi **8.1** atau yang lebih baru (Disarankan PHP 8.2 / 8.3 / 8.4)
+- Ekstensi PHP diaktifkan: `curl`, `dom`, `xml`
+- [Composer](https://getcomposer.org/) terinstal pada komputer Anda
+- Server Lokal (Disarankan menggunakan **Laragon**, **XAMPP**, atau **WAMP** untuk mempermudah pengaturan lingkungan lokal PHP)
 
-### 1. Cara Mendapatkan API Key Gratis
-1. Buka dan daftar akun di website **[GeoNode Scraper API](https://app.geonode.com/scraper-api)**.
-2. Selesaikan proses registrasi dan verifikasi email Anda.
-3. Setelah masuk ke Dashboard, Anda akan mendapatkan **API Key** unik Anda.
-4. Salin API Key tersebut dan masukkan ke dalam file `app/Libraries/GeoNodeScraperAPI.php` pada bagian:
-   ```php
-   private string $apiKey = 'MASUKKAN_API_KEY_ANDA_DI_SINI';
+### Langkah-langkah Instalasi
+
+#### 1. Klon Repositori
+
+Unduh kode sumber proyek ini ke komputer lokal Anda:
+
+```bash
+git clone https://github.com/dyazincahya/API-KBBI-PHP-Codeigniter-4.git
+cd API-KBBI-PHP-Codeigniter-4
+```
+
+#### 2. Instal Dependensi (Composer)
+
+Jalankan perintah berikut untuk mengunduh semua pustaka dependensi framework CodeIgniter 4:
+
+```bash
+composer install
+```
+
+#### 3. Konfigurasi Berkas Lingkungan (.env)
+
+Salin berkas konfigurasi bawaan `env` menjadi `.env`:
+
+```bash
+cp env .env
+```
+
+_(Di Windows PowerShell, gunakan perintah: `copy env .env`)_
+
+#### 4. Pengaturan GeoNode API Key (Wajib untuk Server/Hosting)
+
+Jika Anda menerapkan API ini ke hosting/VPS, IP server Anda kemungkinan besar akan diblokir oleh WAF resmi KBBI. Anda wajib menyiapkannya dengan cara:
+
+1. Daftar akun gratis di **[GeoNode Scraper API](https://app.geonode.com/scraper-api)**.
+2. Selesaikan verifikasi email dan salin **API Key** dari dasbor Anda.
+3. Buka berkas `.env` hasil salinan tadi menggunakan penyunting teks, lalu konfigurasikan kunci Anda di bagian bawah:
+   ```env
+   geonode.apiKeys.0.name = 'Akun Utama Anda'
+   geonode.apiKeys.0.apikey = 'MASUKKAN_API_KEY_ANDA_DI_SINI'
+   geonode.apiKeys.0.limit = 1499
+   geonode.apiKeys.0.reset_day = 10
    ```
+   _Anda dapat memasukkan lebih dari satu akun/kunci untuk dirotasi secara bergantian oleh sistem._
 
-### 2. Jatah Kuota & Limitasi
-* **Limit Gratis:** Setiap akun baru mendapatkan jatah **1.500 request gratis setiap bulan** yang akan di-renew secara otomatis setiap bulannya.
-* **Fitur Safety Capping (Pembatas Lokal):** Library `GeoNodeScraperAPI` dilengkapi pengaman di `writable/geonode_limit.json`. Sistem akan otomatis memblokir request ke GeoNode jika hit bulanan lokal telah menyentuh **1.499 request** agar kuota gratis Anda tidak terlampaui.
+#### 5. Jalankan Server Lokal
 
-### 3. File Library Baru (`app/Libraries/GeoNodeScraperAPI.php`)
-Pastikan file ini dibuat untuk menangani pengiriman request API, rotasi proxy residensial, dan pencatatan limit bulanan:
+Nyalakan server pengembangan CodeIgniter menggunakan Spark:
 
-```php
-<?php
-
-namespace App\Libraries;
-
-use Exception;
-
-class GeoNodeScraperAPI
-{
-    private string $apiKey = 'MASUKKAN_API_KEY_ANDA_DI_SINI';
-    private string $apiUrl = 'https://scraper.geonode.io/v1/extract';
-
-    public function scrape(string $targetUrl): string
-    {
-        if (empty($this->apiKey) || $this->apiKey == 'MASUKKAN_API_KEY_ANDA_DI_SINI') {
-            throw new Exception('GeoNode Scraper API Key is not configured.');
-        }
-
-        $limitFile = WRITEPATH . 'geonode_limit.json';
-        $currentMonth = date('Y-m');
-        $count = 0;
-
-        if (file_exists($limitFile)) {
-            $data = json_decode(file_get_contents($limitFile), true);
-            if (isset($data['month']) && $data['month'] === $currentMonth) {
-                $count = (int)($data['count'] ?? 0);
-            }
-        }
-
-        if ($count >= 1499) {
-            throw new Exception('GeoNode Scraper API limit reached (max 1499 requests/month).');
-        }
-
-        $postData = [
-            'url' => $targetUrl,
-            'formats' => ['html'],
-            'render_js' => false,
-            'processing_mode' => 'sync',
-            'proxy' => [
-                'country' => 'US',
-                'type' => 'datacenter'
-            ]
-        ];
-
-        $ch = curl_init($this->apiUrl);
-        // ... (konfigurasi cURL & increment count jika sukses)
-    }
-}
+```bash
+php spark serve
 ```
 
-### 4. Integrasi ke Model (`app/Models/KBBIModel.php`)
-Di dalam model, request cURL langsung dibungkus dalam blok `try-catch` seperti berikut untuk mengaktifkan fitur fallback otomatis:
+Setelah aktif, buka peramban Anda dan akses halaman utama di:
+[http://localhost:8080/](http://localhost:8080/)
 
-```php
-private function _fetchHtml($word)
-{
-    try {
-        // ... (mencoba request langsung ke server KBBI)
-        return $response;
-    } catch (Exception $e) {
-        // Fallback otomatis jika koneksi langsung gagal
-        $targetUrl = 'https://kbbi.kemendikdasmen.go.id/entri/' . rawurlencode($word);
-        $geoNode = new \App\Libraries\GeoNodeScraperAPI();
-        return $geoNode->scrape($targetUrl);
+---
+
+## API Endpoints dan Contoh Penggunaan
+
+API ini menyediakan beberapa endpoint fleksibel untuk mencari definisi kata atau frasa:
+
+### 1. Informasi API Utama
+
+Mengembalikan deskripsi metadata dasar sistem.
+
+- **URL:** `/kbbi`
+- **Metode:** `GET`
+- **Contoh Respons:**
+  ```json
+  {
+    "api": {
+      "name": "API KBBI 2026",
+      "source": "https://kbbi.kemendikdasmen.go.id",
+      "method": "HTML Parsing"
+    },
+    "technology": {
+      "lang": "PHP 8.4.12",
+      "framework": "CodeIgniter 4.7.4"
     }
+  }
+  ```
+
+### 2. Pencarian Kata (Format URI)
+
+Mencari definisi kata spesifik berdasarkan segmentasi URI.
+
+- **URL:** `/kbbi/search/{kata_kunci}` (Contoh: `/kbbi/search/demokrasi`)
+- **Metode:** `GET`
+
+### 3. Pencarian Kata (Format Query Parameter)
+
+Mencari definisi kata spesifik menggunakan parameter query string.
+
+- **URL:** `/kbbi?search={kata_kunci}` (Contoh: `/kbbi?search=demokrasi`)
+- **Metode:** `GET`
+
+### Contoh Respons Hasil Pencarian (`/kbbi/search/demokrasi`):
+
+```json
+{
+  "success": true,
+  "status": 200,
+  "message": "Hasil ditemukan.",
+  "data": [
+    {
+      "word": "demokrasi",
+      "lema": "de.mo.kra.si",
+      "arti": [
+        {
+          "deskripsi": "n Pol (bentuk atau sistem) pemerintahan yang seluruh rakyatnya turut serta memerintah dengan perantaraan wakilnya; pemerintahan rakyat"
+        },
+        {
+          "deskripsi": "n Pol gagasan atau pandangan hidup yang mengutamakan persamaan hak dan kewajiban serta perlakuan yang sama bagi semua warga negara"
+        }
+      ],
+      "tesaurusLink": "https://tesaurus.kemendikdasmen.go.id/tematis/lema/demokrasi"
+    }
+  ]
 }
 ```
 
 ---
 
-## Cara Instalasi
-- Salin atau unduh kode model (Model) dengan nama [KBBIModel.php](https://github.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/blob/main/KBBIModel.php)
-- Salin atau unduh kode kontroler (Controller) dengan nama [ApiKBBI.php](https://github.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/blob/main/ApiKBBI.php)
-- Salin atau unduh kode pustaka (Library) dengan nama [GeoNodeScraperAPI.php](https://github.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/blob/main/GeoNodeScraperAPI.php)
-- Tambahkan baris router berikut pada file ```\app\Config\Routes.php```
-```php
-// KBBI Router : \Config\Routes.php
-$routes->get('/kbbi', 'ApiKBBI::index');
-$routes->get('/kbbi/search/(:any)', 'ApiKBBI::search/$1');
-```
+## Optimasi Server Hosting
 
-## End Point
-- /kbbi
-- /kbbi?search=```KATA_KUNCI```
-- /kbbi/search/```KATA_KUNCI```
+Agar performa scraping dan request fallback berjalan lancar di server hosting/cPanel Anda, silakan terapkan penyesuaian parameter PHP berikut:
 
-## Contoh Respon
-#### /kbbi/search/bagaimana
-```json
-{
-    "success": true,
-    "status": 200,
-    "message": "Results found.",
-    "data": [
-        {
-            "lema": "ba.gai.ma.na bentuk tidak baku: begimana, gimana",
-            "arti": [
-                {
-                    "deskripsi": "pron kata tanya untuk menanyakan cara, perbuatan (lazimnya diikuti kata cara): -- caranya membeli buku dari luar negeri?"
-                },
-                {
-                    "deskripsi": "pron kata tanya untuk menanyakan akibat suatu tindakan: -- kalau dia lari nanti?"
-                },
-                {
-                    "deskripsi": "pron kata tanya untuk meminta pendapat dari kawan bicara (diikuti kata kalau): -- kalau kita pergi ke Puncak?"
-                },
-                {
-                    "deskripsi": "pron kata tanya untuk menanyakan penilaian atas suatu gagasan: -- pendapatmu?"
-                }
-            ],
-            "tesaurusLink": "http://tesaurus.kemdikbud.go.id/tematis/lema/bagaimana"
-        }
-    ]
-}
-```
+1. `memory_limit`: Ubah ke nilai yang lebih besar (minimal `256M` atau `512M`).
+2. `max_execution_time`: Atur ke nilai yang lebih tinggi (minimal `120` detik) untuk menangani waktu tunggu fallback scraper.
+3. **OPcache**: Aktifkan OPcache di menu PHP Selector hosting Anda untuk mempercepat eksekusi framework CI4.
+4. **Ekstensi PHP**: Pastikan ekstensi `dom`, `xml`, dan `curl` telah diaktifkan.
 
-#### /kbbi/search/bagai%20babi%20kelaparan
-```json
-{
-    "success": true,
-    "status": 200,
-    "message": "Results found.",
-    "data": [
-        {
-            "lema": "babi » bagai babi kelaparan",
-            "arti": [
-                {
-                    "deskripsi": "mengamuk dan bertindak tanpa perhitungan"
-                }
-            ],
-            "tesaurusLink": "http://tesaurus.kemdikbud.go.id/tematis/lema/bagai babi kelaparan"
-        }
-    ]
-}
-```
+---
 
-## Optimasi Hosting
-Anda dapat melalukan beberapa optimasi pada server hosting agar API ini dapat berjalan dengan lebih optimal. diantaranya sebagai berikut:
-1. ```memory_limit```: Ubah ke nilai yang lebih besar, misalnya 256M atau 512M.
-2. ```max_execution_time```: Atur ke nilai yang lebih tinggi, misalnya 120 detik atau lebih, sesuai kebutuhan.
-3. Aktifkan ```OPcache```, pastikan versi PHP yang Anda gunakan mendukung OPcache (biasanya versi 7.0 ke atas)
-4. Aktifkan ekstensi PHP ```dom``` atau ```simplexml```
+## Alternatif dan Repositori Terkait
 
-## Aplikasi KBBI untuk Android
-![MyKBBI](https://play-lh.googleusercontent.com/CC7HRNLH2h2Gd6CUvBAQJOKphi9wU1Wbwr-eXlaXtOB56Mmp3hX5jYdhlUloQZeJTUw=w240-h480-rw)
+- **[KBBI-Go (Versi Bahasa GO)](https://github.com/dyazincahya/kbbi-go)** - API KBBI dengan performa tinggi yang ditulis menggunakan bahasa Go.
+- **[KBBI-SQL-Database](https://github.com/dyazincahya/KBBI-SQL-database)** - Jika Anda tidak ingin menggunakan API, Anda dapat mengunduh basis data SQL KBBI lengkap dalam format MySQL, SQLite, PostgreSQL, CSV, JSON, atau XML.
+- **[MyKBBI Android App](https://play.google.com/store/apps/details?id=com.kang.cahya.apps.mykbbi)** - Aplikasi Kamus Bahasa Indonesia resmi buatan Kang Cahya di Google Play Store.
 
-[MyKBBI - Kamus Bahasa Indonesia](https://play.google.com/store/apps/details?id=com.kang.cahya.apps.mykbbi) (Unduh via Google Play Store)
+---
 
-## KBBI SQL Database
-Apabila tidak ingin menggunakan API, Anda juga dapat mengimpor data kata dan peribahasa ke dalam basis data pribadi. Anda dapat mengunduh basis datanya di sini: [KBBI-SQL-Database](https://github.com/dyazincahya/KBBI-SQL-database). Tersedia untuk MySQL, SQLite dan PostgreSQL. Juga tersedia untuk format data CSV, JSON, Markdown, PHP Array, XML, DbUnit, HTML
+## Lisensi dan Penulis
 
-## Log Perubahan
-[Lihat Log Perubahan](https://github.com/dyazincahya/API-KBBI-PHP-Codeigniter-4/releases)
-
-## Penulis
-[Kang Cahya](https://kang-cahya.com)
+- Proyek ini dilisensikan di bawah lisensi **MIT License**.
+- Dibuat dan dikembangkan oleh **[Kang Cahya](https://kang-cahya.com)**.

@@ -39,7 +39,7 @@ class ApiKBBI extends BaseController
     {
         if(!empty($word))
         {
-            $model = new KBBIOnlyModel();
+            $model = new KBBIModel();
 
             try {
                 $result = $model->searchWord($word);
