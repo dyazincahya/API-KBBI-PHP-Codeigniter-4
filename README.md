@@ -244,6 +244,7 @@ Agar performa scraping dan request fallback berjalan lancar di server hosting/cP
 ## Alternatif dan Repositori Terkait
 
 - **[KBBI-Go (Versi Bahasa GO)](https://github.com/dyazincahya/kbbi-go)** - API KBBI dengan performa tinggi yang ditulis menggunakan bahasa Go.
+- **[kbbi-api (Versi Bahasa Go oleh raf555)](https://github.com/raf555/kbbi-api)** - API KBBI alternatif siap pakai yang dibangun menggunakan bahasa Go.
 - **[KBBI-SQL-Database](https://github.com/dyazincahya/KBBI-SQL-database)** - Jika Anda tidak ingin menggunakan API, Anda dapat mengunduh basis data SQL KBBI lengkap dalam format MySQL, SQLite, PostgreSQL, CSV, JSON, atau XML.
 - **[MyKBBI Android App](https://play.google.com/store/apps/details?id=com.kang.cahya.apps.mykbbi)** - Aplikasi Kamus Bahasa Indonesia resmi buatan Kang Cahya di Google Play Store.
 
