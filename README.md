@@ -71,18 +71,18 @@ Untuk menjaga performa dan efisiensi kuota, API ini menggunakan alur kerja multi
 ```mermaid
 graph TD
     Start([Mulai Pencarian Kata]) --> Lapis1[Lapis 1: Scraping Langsung cURL ke KBBI Resmi]
-    
+
     Lapis1 --> CheckSuccess1{Apakah Scraping Langsung Sukses?}
     CheckSuccess1 -- Ya --> ParseHTML[Ubah Struktur HTML ke JSON] --> ReturnData([Kembalikan Hasil Pencarian])
     CheckSuccess1 -- Tidak/WAF Block/Timeout --> Lapis2[Lapis 2: Fallback ke GeoNode Scraper API]
-    
+
     Lapis2 --> CheckConfig{Apakah GeoNode API Key Terkonfigurasi?}
     CheckConfig -- Tidak --> ShowErrorConfig[Tolak & Kembalikan Error Konfigurasi]
     CheckConfig -- Ya --> CheckLimit{Apakah Total Limit Bulanan Lokal Tercapai?}
-    
+
     CheckLimit -- Ya --> ShowErrorLimit[Tolak & Kembalikan Error Jatah Limit]
     CheckLimit -- Tidak --> ExecGeoNode[Kirim Request via Proxy Residential GeoNode]
-    
+
     ExecGeoNode --> RotateKey[Rotasi API Key secara Round-Robin]
     RotateKey --> SaveLimit[Catat Penggunaan Kuota lokal di geonode_limit.json]
     SaveLimit --> ParseHTML
@@ -148,7 +148,6 @@ Jika Anda menerapkan API ini ke hosting/VPS, IP server Anda kemungkinan besar ak
    geonode.apiKeys.0.reset_day = 10
    ```
    _Anda dapat memasukkan lebih dari satu akun/kunci untuk dirotasi secara bergantian oleh sistem._
-    
    _Catatan: Setiap akun GeoNode Scraper API memiliki batasan (limit) gratis sebesar 1.500 permintaan per bulan, yang akan diperbarui secara otomatis (reset) setiap bulannya berdasarkan tanggal pendaftaran masing-masing akun._
 
 #### 5. Jalankan Server Lokal
@@ -246,7 +245,7 @@ Agar performa scraping dan request fallback berjalan lancar di server hosting/cP
 - **[KBBI-Go (Versi Bahasa GO)](https://github.com/dyazincahya/kbbi-go)** - API KBBI dengan performa tinggi yang ditulis menggunakan bahasa Go.
 - **[kbbi-api (Versi Bahasa Go oleh raf555)](https://github.com/raf555/kbbi-api)** - API KBBI alternatif siap pakai yang dibangun menggunakan bahasa Go.
 - **[KBBI-SQL-Database](https://github.com/dyazincahya/KBBI-SQL-database)** - Jika Anda tidak ingin menggunakan API, Anda dapat mengunduh basis data SQL KBBI lengkap dalam format MySQL, SQLite, PostgreSQL, CSV, JSON, atau XML.
-- **[MyKBBI Android App](https://play.google.com/store/apps/details?id=com.kang.cahya.apps.mykbbi)** - Aplikasi Kamus Bahasa Indonesia resmi buatan Kang Cahya di Google Play Store.
+- **[MyKBBI Android App](https://play.google.com/store/apps/details?id=com.kang.cahya.apps.mykbbi)** - Aplikasi Kamus Bahasa Indonesia buatan Kang Cahya di Google Play Store.
 
 ---
 
